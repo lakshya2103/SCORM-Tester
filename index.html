@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SCORM Package Tester</title>
+<style>
+:root{--bg:#f4f3ee;--card:#fff;--tx:#1c1b18;--mu:#6b6860;--bd:#e2dfd6;--ac:#0f6e56;--ac2:#e1f3ec;--er:#b3261e;--wn:#9a6700;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#151512;--card:#1f1f1b;--tx:#efede6;--mu:#9b978c;--bd:#33322c;--ac:#4cc3a0;--ac2:#18312a;--er:#ff8a80;--wn:#e3b341;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#151512;--card:#1f1f1b;--tx:#efede6;--mu:#9b978c;--bd:#33322c;--ac:#4cc3a0;--ac2:#18312a;--er:#ff8a80;--wn:#e3b341;color-scheme:dark}
+*{box-sizing:border-box}html,body{height:100%;margin:0}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{display:flex;flex-direction:column;background:var(--bg);color:var(--tx);font:14px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif;overflow:hidden}
+button,select,input{font:inherit;color:var(--tx)}
+button{background:var(--card);border:1px solid var(--bd);border-radius:7px;padding:5px 10px;cursor:pointer;white-space:nowrap}
+button:hover{border-color:var(--ac)}button.on{background:var(--ac2);border-color:var(--ac);color:var(--ac)}button.pri{background:var(--ac);color:#fff;border-color:var(--ac)}
+input[type=text],select{background:var(--bg);border:1px solid var(--bd);border-radius:7px;padding:5px 8px;width:100%}
+.top{display:flex;align-items:center;gap:6px;padding:7px 12px;background:var(--card);border-bottom:1px solid var(--bd);overflow-x:auto;flex:none}
+.brand{font-weight:700;font-size:15px;white-space:nowrap}.sub{color:var(--mu);font-size:12px}.ell{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:28vw}.sp{flex:1;min-width:8px}
+.pill{font-size:11px;padding:2px 8px;border-radius:99px;background:var(--ac2);color:var(--ac);font-weight:600;white-space:nowrap}
+.banner{padding:8px 14px;background:var(--card);border-bottom:1px solid var(--bd);color:var(--er);font-size:13px;flex:none}
+.work{flex:1;min-height:0;display:flex;position:relative}
+aside{background:var(--card);display:flex;flex-direction:column;min-height:0;flex:none}
+#left{width:290px;border-right:1px solid var(--bd)}#right{width:410px;border-left:1px solid var(--bd)}
+body.no-left #left,body.no-right #right{display:none}
+aside>h2{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--mu);margin:0;padding:10px 12px;border-bottom:1px solid var(--bd)}
+.body{padding:10px 12px;overflow:auto;flex:1;min-height:0}
+#stagebox{flex:1;min-width:0;display:flex;flex-direction:column;position:relative;background:var(--bg)}
+#frame{flex:1;width:100%;border:0;background:#fff;display:none;min-height:0}
+body.launched #frame{display:block}body.launched #welcome{display:none}
+#welcome{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px;text-align:center}
+#drop{width:min(560px,100%);border:2px dashed var(--bd);border-radius:14px;padding:42px 20px;color:var(--mu);cursor:pointer;background:var(--card)}
+#drop b{display:block;font-size:17px;color:var(--tx);margin-bottom:4px}#drop.on{border-color:var(--ac);background:var(--ac2)}
+#stagebox.fs{position:fixed;inset:0;z-index:100;padding-top:env(safe-area-inset-top,0px)}
+#exitfs{position:absolute;top:calc(8px + env(safe-area-inset-top,0px));right:12px;z-index:101;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+.item{display:flex;align-items:center;gap:6px;padding:6px;border-radius:6px;cursor:pointer;margin:1px 0}
+.item:hover{background:var(--bg)}.item.act{background:var(--ac2);color:var(--ac);font-weight:600}
+.item.dis{color:var(--mu);cursor:default}.badge{margin-left:auto;font-size:10px;color:var(--mu);white-space:nowrap}
+.tabs{display:flex;border-bottom:1px solid var(--bd);flex:none}.tabs button{border:0;border-radius:0;flex:1;padding:10px;background:none;color:var(--mu)}
+.tabs button.on{color:var(--ac);box-shadow:inset 0 -2px var(--ac);font-weight:600;background:none}
+.log{font:11.5px/1.5 ui-monospace,Menlo,Consolas,monospace}.log div{padding:2px 0;border-bottom:1px dashed var(--bd);word-break:break-all}
+.log .e{color:var(--er)}.log .w{color:var(--wn)}.log .t{color:var(--mu)}
+table{width:100%;border-collapse:collapse;font:11.5px ui-monospace,Menlo,Consolas,monospace}
+td{padding:3px 4px;border-bottom:1px solid var(--bd);vertical-align:top;word-break:break-all}td:first-child{color:var(--mu);width:48%}
+label{display:block;font-size:12px;color:var(--mu);margin:10px 0 3px}.hide{display:none!important}
+.chk{background:var(--bg);border-radius:8px;padding:8px 10px;margin-bottom:10px;font-size:12px}
+@media(max-width:900px){aside{position:absolute;top:0;bottom:0;z-index:20;box-shadow:0 0 24px rgba(0,0,0,.3)}#left{left:0;max-width:85%}#right{right:0;max-width:92%}.ell{max-width:22vw}}
+</style></head><body>
+<div class="top">
+<span class="brand">SCORM Tester</span><span class="pill hide" id="ver"></span><span class="sub ell" id="pkgname"></span>
+<span class="sp"></span>
+<button id="open">Open package</button><button id="tgL" title="Course outline">☰ Outline</button>
+<button id="prev" title="Previous SCO">←</button><button id="next" title="Next SCO">→</button><button id="reload" title="Relaunch current SCO">↻ Relaunch</button>
+<span class="sub ell" id="cur">No SCO launched</span>
+<span class="sp"></span>
+<button id="tgR" title="API log, CMI data, settings">Debug panel</button><button id="fs" class="pri">⛶ Fullscreen</button>
+</div>
+<div id="err" class="banner hide"></div>
+<div class="work">
+<aside id="left"><h2>Course outline</h2><div class="body"><div id="check" class="chk hide"></div><div id="tree"></div></div></aside>
+<section id="stagebox">
+<div id="welcome"><div id="drop"><b>Drop a SCORM .zip here</b>or click to browse (SCORM 1.2 and 2004)<input id="file" type="file" accept=".zip" hidden></div><button id="demo">Or load the built-in demo package</button></div>
+<iframe id="frame" title="SCO content" allow="autoplay; fullscreen"></iframe>
+<button id="exitfs" class="hide">Exit fullscreen</button>
+</section>
+<aside id="right">
+<div class="tabs"><button class="on" data-t="log">API log</button><button data-t="cmi">CMI data</button><button data-t="set">Settings</button></div>
+<div class="body" id="t-log"><div style="display:flex;gap:8px;align-items:center;margin-bottom:6px"><label style="margin:0;display:flex;gap:5px;align-items:center"><input type="checkbox" id="errs"> errors only</label><button id="clr" style="margin-left:auto">Clear</button><button id="cpy">Copy</button></div><div class="log" id="log"></div></div>
+<div class="body hide" id="t-cmi"><table id="cmi"></table></div>
+<div class="body hide" id="t-set">
+<label>Learner name</label><input type="text" id="lname" value="Test Learner">
+<label>Lesson mode</label><select id="mode"><option>normal</option><option>browse</option><option>review</option></select>
+<label>API exposed to content</label><select id="apiv"><option value="auto">Auto (from manifest)</option><option value="1.2">SCORM 1.2 (window.API)</option><option value="2004">SCORM 2004 (window.API_1484_11)</option></select>
+<div style="margin-top:12px"><button id="rst">Reset all learner data</button></div>
+<div class="chk" style="margin-top:12px">Data persists per SCO during this session, so Relaunch simulates resume (entry = resume when suspend data exists). Nothing is uploaded; files are read in your browser.</div></div>
+</aside>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script>
+var $=function(s){return document.querySelector(s)};
+var MODE=null,mapReady=null,files={},lower={},cache={},pkg=null,cur=null,data={},logs=[],curApi=null,flat=[];
+var MIME={html:'text/html',htm:'text/html',css:'text/css',js:'text/javascript',json:'application/json',png:'image/png',jpg:'image/jpeg',jpeg:'image/jpeg',gif:'image/gif',svg:'image/svg+xml',mp3:'audio/mpeg',mp4:'video/mp4',woff:'font/woff',woff2:'font/woff2',ttf:'font/ttf',xml:'text/xml',webp:'image/webp',pdf:'application/pdf'};
+var esc=function(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})};
+
+/* ---------- logging ---------- */
+function note(msg,cls){logs.push({t:new Date().toLocaleTimeString(),m:msg,c:cls||'t'});drawLog()}
+function log(fn,a,ret,code){logs.push({t:new Date().toLocaleTimeString(),m:fn+'('+a.map(function(x){return JSON.stringify(x)}).join(', ')+') → '+JSON.stringify(ret)+(code?'  [error '+code+']':''),c:code?'e':''});drawLog();if(/Set|Commit/.test(fn))drawCmi()}
+function drawLog(){var eo=$('#errs').checked,h='';logs.slice(-600).forEach(function(l){if(eo&&l.c!=='e'&&l.c!=='w')return;h+='<div class="'+l.c+'"><span class="t">'+l.t+'</span> '+esc(l.m)+'</div>'});var b=$('#t-log');var low=b.scrollTop+b.clientHeight>=b.scrollHeight-40;$('#log').innerHTML=h;if(low)b.scrollTop=b.scrollHeight}
+function drawCmi(){if(!cur){$('#cmi').innerHTML='<tr><td>No SCO launched</td><td></td></tr>';return}var d=data[cur.id],h='';Object.keys(d).sort().forEach(function(k){h+='<tr><td>'+esc(k)+'</td><td>'+esc(d[k])+'</td></tr>'});$('#cmi').innerHTML=h;drawTree()}
+
+/* ---------- zip + paths ---------- */
+function norm(p){var o=[];p.split('/').forEach(function(s){if(s===''||s==='.')return;if(s==='..')o.pop();else o.push(s)});return o.join('/')}
+function find(p){p=norm(p);return files[p]?p:(lower[p.toLowerCase()]||null)}
+function join(dir,rel){if(/^(https?:|data:|blob:|#|mailto:|javascript:|\/\/)/i.test(rel))return null;rel=rel.split('#')[0].split('?')[0];try{rel=decodeURIComponent(rel)}catch(e){}return rel?norm((rel[0]==='/'?'':dir+'/')+rel):null}
+function dirOf(p){return p.indexOf('/')>-1?p.slice(0,p.lastIndexOf('/')):''}
+function miss(p,from){note('Missing file: '+p+' (referenced by '+from+')','w')}
+function urlFor(path){var k=find(path);if(!k)return Promise.resolve(null);return cache[k]||(cache[k]=build(k))}
+async function css(t,dir,k){var re=/url\(\s*['"]?([^'")]+?)['"]?\s*\)|@import\s+['"]([^'"]+)['"]/g,m=Array.from(t.matchAll(re)),out=t;for(var i=0;i<m.length;i++){var rel=m[i][1]||m[i][2],p=join(dir,rel);if(!p)continue;var u=await urlFor(p);if(u)out=out.split(rel).join(u);else miss(p,k)}return out}
+async function build(k,asText){
+  var ext=k.split('.').pop().toLowerCase(),dir=dirOf(k),blob;
+  if(ext==='html'||ext==='htm'){
+    var d=new DOMParser().parseFromString(await files[k].async('string'),'text/html');
+    var SC=new RegExp('<'+'/script','gi'),BS=String.fromCharCode(92);
+    for(var s of Array.from(d.querySelectorAll('script[src]'))){var sp=join(dir,s.getAttribute('src')),sk=sp&&find(sp);if(!sk)continue;s.removeAttribute('src');s.textContent=(await files[sk].async('string')).replace(SC,'<'+BS+'/script')}
+    for(var l of Array.from(d.querySelectorAll('link[rel~=stylesheet][href]'))){var lp=join(dir,l.getAttribute('href')),lk=lp&&find(lp);if(!lk)continue;var sty=d.createElement('style');sty.textContent=await css(await files[lk].async('string'),dirOf(lk),lk);l.replaceWith(sty)}
+    var els=Array.from(d.querySelectorAll('[src],link[href],[poster]'));
+    for(var i=0;i<els.length;i++){for(var a of ['src','href','poster']){if(!els[i].hasAttribute(a))continue;var t=join(dir,els[i].getAttribute(a));if(!t)continue;var u=await urlFor(t);if(u)els[i].setAttribute(a,u);else miss(t,k)}}
+    var st=Array.from(d.querySelectorAll('style'));for(i=0;i<st.length;i++)st[i].textContent=await css(st[i].textContent,dir,k);
+    var sc=d.createElement('script');sc.textContent=SHIM.replace('__BASE__',function(){return JSON.stringify(dir)});d.head.insertBefore(sc,d.head.firstChild);
+    var out='<!DOCTYPE html>'+d.documentElement.outerHTML;if(asText)return out;blob=new Blob([out],{type:'text/html'});
+  }else if(ext==='css')blob=new Blob([await css(await files[k].async('string'),dir,k)],{type:'text/css'});
+  else blob=new Blob([await files[k].async('uint8array')],{type:MIME[ext]||'application/octet-stream'});
+  return toUrl(blob);
+}
+
+/* ---------- runtime shim injected into every HTML page of the package ----------
+   Content sets src/href at runtime (audio, images, fetch...). Those relative paths
+   do not exist in the browser, so we remap them to blob URLs of the zip entries. */
+function shimFn(B){
+  function M(){var w=window;for(var i=0;i<12;i++){try{if(w.__SCORM_MAP)return w.__SCORM_MAP}catch(e){}if(w===w.parent)break;w=w.parent}return {}}
+  function nm(p){var o=[];p.split('/').forEach(function(s){if(s===''||s==='.')return;if(s==='..')o.pop();else o.push(s)});return o.join('/')}
+  function R(u){if(u==null)return u;var s=String(u);if(!s||/^(https?:|data:|blob:|#|mailto:|javascript:|about:|\/\/)/i.test(s))return u;var p=s.split('#')[0].split('?')[0];try{p=decodeURIComponent(p)}catch(e){}return M()[nm((p.charAt(0)==='/'?'':B+'/')+p).toLowerCase()]||u}
+  function P(proto,prop){var d=Object.getOwnPropertyDescriptor(proto,prop);if(!d||!d.set)return;Object.defineProperty(proto,prop,{configurable:true,enumerable:d.enumerable,get:d.get,set:function(v){d.set.call(this,R(v))}})}
+  P(HTMLImageElement.prototype,'src');P(HTMLMediaElement.prototype,'src');P(HTMLSourceElement.prototype,'src');P(HTMLScriptElement.prototype,'src');P(HTMLLinkElement.prototype,'href');P(HTMLIFrameElement.prototype,'src');P(HTMLVideoElement.prototype,'poster');
+  var sa=Element.prototype.setAttribute;Element.prototype.setAttribute=function(n,v){if(/^(src|href|poster|data)$/i.test(n)&&this.tagName!=='A')v=R(v);return sa.call(this,n,v)};
+  var OA=window.Audio;window.Audio=function(u){var a=new OA();if(u)a.src=u;return a};window.Audio.prototype=OA.prototype;
+  var of=window.fetch;if(of)window.fetch=function(i,o){if(typeof i==='string')i=R(i);return of.call(this,i,o)};
+  var xo=XMLHttpRequest.prototype.open;XMLHttpRequest.prototype.open=function(m,u){arguments[1]=R(u);return xo.apply(this,arguments)};
+  new MutationObserver(function(ms){ms.forEach(function(m){m.addedNodes.forEach(function(n){if(n.nodeType!==1)return;[n].concat([].slice.call(n.querySelectorAll('[src],[poster],link[href]'))).forEach(function(e){['src','poster','href'].forEach(function(a){if(e.hasAttribute(a)&&!(a==='href'&&e.tagName==='A')){var v=e.getAttribute(a),r=R(v);if(r!==v)e.setAttribute(a,r)}})})})})}).observe(document,{childList:true,subtree:true});
+  window.addEventListener('error',function(e){var t=e.target;if(!t||!t.getAttribute)return;var v=t.getAttribute('src')||t.getAttribute('href');if(v&&!/^(blob:|data:)/.test(v)){try{window.parent.__scormNote('Unresolved resource in content: '+v)}catch(x){}}},true);
+}
+var SHIM='('+shimFn.toString()+')(__BASE__);';
+window.__scormNote=function(m){note(m,'w')};
+function toUrl(blob){
+  if(MODE!=='data')return URL.createObjectURL(blob);
+  return new Promise(function(res){var r=new FileReader();r.onload=function(){res(r.result)};r.readAsDataURL(blob)});
+}
+async function probeMode(){
+  var total=Object.keys(files).reduce(function(s,k){var d=files[k]._data;return s+((d&&d.uncompressedSize)||0)},0);
+  if(window.origin==='null'||total<80e6)return 'data';
+  return new Promise(function(res){var im=new Image(),t=setTimeout(function(){res('data')},2000);
+    im.onload=function(){clearTimeout(t);res('blob')};im.onerror=function(){clearTimeout(t);res('data')};
+    im.src=URL.createObjectURL(new Blob([Uint8Array.from(atob('R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'),function(c){return c.charCodeAt(0)})],{type:'image/gif'}))});
+}
+async function ensureMap(){
+  if(!MODE)MODE=await probeMode();
+  var keys=Object.keys(files),map={},t0=performance.now();
+  await Promise.all(keys.map(function(k){return urlFor(k).then(function(u){if(u)map[k.toLowerCase()]=u})}));
+  window.__SCORM_MAP=map;note('Prepared '+keys.length+' package files ('+MODE+' URLs) in '+Math.round(performance.now()-t0)+' ms');
+}
+
+/* ---------- manifest ---------- */
+async function loadZip(buf,name){
+  try{
+    $('#err').classList.add('hide');
+    var z=await JSZip.loadAsync(buf);files={};lower={};cache={};
+    z.forEach(function(p,f){if(!f.dir){files[p]=f;lower[p.toLowerCase()]=p}});
+    var mk=Object.keys(files).filter(function(p){return /(^|\/)imsmanifest\.xml$/i.test(p)}).sort(function(a,b){return a.length-b.length})[0];
+    if(!mk)throw new Error('No imsmanifest.xml found. Is this a SCORM package zip?');
+    var txt=await files[mk].async('string'),doc=new DOMParser().parseFromString(txt,'application/xml');
+    if(doc.querySelector('parsererror'))throw new Error('imsmanifest.xml is not well-formed XML.');
+    document.body.classList.remove('launched');pkg=parse(doc,txt,mk,name);cur=null;data={};logs=[];mapReady=null;MODE=null;window.__SCORM_MAP={};$('#frame').removeAttribute('src');
+    note('Loaded '+name+' — '+Object.keys(files).length+' files, detected SCORM '+pkg.version);
+    render();
+  }catch(e){$('#err').textContent=e.message;$('#err').classList.remove('hide')}
+}
+function xb(el){return el.getAttributeNS('http://www.w3.org/XML/1998/namespace','base')||el.getAttribute('xml:base')||''}
+function kids(n,name){return Array.from(n.children).filter(function(c){return c.localName===name})}
+function parse(doc,txt,mk,name){
+  var sv=(doc.querySelector('*|metadata *|schemaversion')||{}).textContent||'';sv=sv.trim();
+  var version=/1\.2/.test(sv)?'1.2':(/2004|1\.3|CAM/i.test(sv)||/adlcp_v1p3|imsss|adlseq|adlnav/.test(txt))?'2004':'1.2';
+  var mdir=dirOf(mk),res={},resRoot=doc.querySelector('*|resources'),rb=resRoot?xb(resRoot):'';
+  if(resRoot)kids(resRoot,'resource').forEach(function(r){var st='';Array.from(r.attributes).forEach(function(a){if(a.localName.toLowerCase()==='scormtype')st=a.value});
+    res[r.getAttribute('identifier')]={href:r.getAttribute('href'),base:rb+xb(r),type:st||'unspecified',files:kids(r,'file').map(function(f){return f.getAttribute('href')})}});
+  var orgs=doc.querySelector('*|organizations'),def=orgs&&orgs.getAttribute('default'),orgEl=null;
+  if(orgs){var os=kids(orgs,'organization');orgEl=os.filter(function(o){return o.getAttribute('identifier')===def})[0]||os[0]}
+  var issues=[];
+  function walk(n){return kids(n,'item').map(function(c){
+    var ti=kids(c,'title')[0],ref=c.getAttribute('identifierref'),r=ref&&res[ref],path=null;
+    var txt1=function(nm){var e=kids(c,nm)[0];return e?e.textContent.trim():''};
+    if(ref&&!r)issues.push('Item “'+(ti?ti.textContent:c.getAttribute('identifier'))+'” points to missing resource '+ref);
+    if(r&&r.href){path=join(dirOf(mk)?mdir:'',(r.base?r.base.replace(/\/?$/,'/'):'')+r.href);if(path&&!find(path)){issues.push('Launch file not in zip: '+path);}}
+    return {id:c.getAttribute('identifier'),title:ti?ti.textContent.trim():c.getAttribute('identifier'),path:path,params:c.getAttribute('parameters')||'',rtype:r?r.type:'',
+      dfl:txt1('datafromlms'),mastery:txt1('masteryscore')||(function(){var e=c.querySelector('*|minNormalizedMeasure');return e?e.textContent.trim():''})(),kids:walk(c)}})}
+  var tree=orgEl?walk(orgEl):[];
+  if(!orgEl)issues.push('No organization found in manifest.');
+  var title=orgEl&&kids(orgEl,'title')[0];
+  return {name:name,version:version,schemaversion:sv,tree:tree,issues:issues,title:title?title.textContent.trim():name,manifest:mk}
+}
+
+/* ---------- tree / nav ---------- */
+function render(){
+  $('#ver').textContent='SCORM '+pkg.version;$('#ver').classList.remove('hide');$('#pkgname').textContent=pkg.title;
+  flat=[];(function f(a){a.forEach(function(i){if(i.path)flat.push(i);f(i.kids)})})(pkg.tree);
+  var c=$('#check'),h='<b>Manifest check</b><br>Schema version: '+esc(pkg.schemaversion||'not declared')+' → treated as '+pkg.version+'<br>Launchable items: '+flat.length;
+  pkg.issues.forEach(function(i){h+='<br><span style="color:var(--er)">• '+esc(i)+'</span>'});
+  if(!pkg.issues.length)h+='<br><span style="color:var(--ac)">No structural problems found.</span>';
+  c.innerHTML=h;c.classList.remove('hide');$('#pkgname').classList.toggle('hide',flat.length===1);drawTree();drawCmi();
+  if(flat.length===1){document.body.classList.add('no-left');launch(flat[0])}else document.body.classList.remove('no-left');
+}
+function status(i){var d=data[i.id];if(!d)return '';return d['cmi.core.lesson_status']||[d['cmi.completion_status'],d['cmi.success_status']].filter(function(x){return x&&x!=='unknown'}).join(' / ')||d['cmi.completion_status']||''}
+function drawTree(){
+  var t=$('#tree');t.innerHTML='';if(!pkg)return;
+  (function f(a,depth){a.forEach(function(i){var d=document.createElement('div');d.className='item'+(i.path?'':' dis')+(cur&&cur.id===i.id?' act':'');d.style.paddingLeft=(6+depth*14)+'px';
+    d.innerHTML='<span>'+(i.path?'▶':'▸')+'</span><span>'+esc(i.title)+'</span><span class="badge">'+esc(status(i))+'</span>';
+    if(i.path)d.onclick=function(){launch(i)};t.appendChild(d);f(i.kids,depth+1)})})(pkg.tree,0);
+}
+function step(n){if(!flat.length)return;var ix=cur?flat.findIndex(function(i){return i.id===cur.id}):-1;var t=flat[ix+n];if(t)launch(t);else note('No '+(n>0?'next':'previous')+' SCO','w')}
+
+/* ---------- runtime ---------- */
+function initData(i,v){
+  var n=$('#lname').value||'Test Learner',m=$('#mode').value;
+  return v==='1.2'?{'cmi.core.student_id':'learner001','cmi.core.student_name':n,'cmi.core.lesson_location':'','cmi.core.credit':'credit','cmi.core.lesson_status':'not attempted','cmi.core.entry':'ab-initio','cmi.core.lesson_mode':m,'cmi.suspend_data':'','cmi.launch_data':i.dfl,'cmi.student_data.mastery_score':i.mastery}
+  :{'cmi._version':'1.0','cmi.learner_id':'learner001','cmi.learner_name':n,'cmi.location':'','cmi.credit':'credit','cmi.completion_status':'unknown','cmi.success_status':'unknown','cmi.entry':'ab-initio','cmi.mode':m,'cmi.suspend_data':'','cmi.launch_data':i.dfl,'cmi.scaled_passing_score':i.mastery,'cmi.completion_threshold':''};
+}
+var ERR={0:'No error',101:'General exception',201:'Invalid argument',301:'Not initialized',401:'Not implemented',103:'Already initialized',112:'Termination before initialization',122:'Retrieve data before initialization',403:'Data model element value not initialized'};
+function mkApi(v,item){
+  var is2=v==='2004',st='NI',e=0,d=data[item.id],N=is2?['Initialize','Terminate','GetValue','SetValue','Commit','GetLastError','GetErrorString','GetDiagnostic']:['LMSInitialize','LMSFinish','LMSGetValue','LMSSetValue','LMSCommit','LMSGetLastError','LMSGetErrorString','LMSGetDiagnostic'],api={};
+  var r=function(i,a,ret,code){e=code||0;log(N[i],a,ret,e);return ret};
+  api[N[0]]=function(p){if(st==='Running')return r(0,[p],'false',is2?103:101);st='Running';if(!is2&&d['cmi.core.lesson_status']==='not attempted')d['cmi.core.lesson_status']='incomplete';drawCmi();return r(0,[p],'true')};
+  api[N[1]]=function(p){if(st!=='Running')return r(1,[p],'false',is2?112:301);st='Terminated';var q=d['adl.nav.request'];if(q==='continue')setTimeout(function(){step(1)},50);if(q==='previous')setTimeout(function(){step(-1)},50);drawCmi();return r(1,[p],'true')};
+  api[N[2]]=function(k){if(st!=='Running')return r(2,[k],'',is2?122:301);
+    if(/\._count$/.test(k)){var pre=k.replace(/_count$/,''),mx=-1;Object.keys(d).forEach(function(x){if(x.indexOf(pre)===0){var m=parseInt(x.slice(pre.length),10);if(m>mx)mx=m}});return r(2,[k],String(mx+1))}
+    if(k in d)return r(2,[k],d[k]);return r(2,[k],'',is2?403:0)};
+  api[N[3]]=function(k,val){if(st!=='Running')return r(3,[k,val],'false',is2?132:301);d[k]=String(val);return r(3,[k,val],'true')};
+  api[N[4]]=function(p){if(st!=='Running')return r(4,[p],'false',is2?142:301);return r(4,[p],'true')};
+  api[N[5]]=function(){log(N[5],[],String(e));return String(e)};
+  api[N[6]]=function(c){var s=ERR[c]||'Unknown error';log(N[6],[c],s);return s};
+  api[N[7]]=function(c){log(N[7],[c],'');return ''};
+  api._state=function(){return st};return api;
+}
+async function launch(item){
+  if(curApi&&curApi._state()==='Running')note('Previous SCO ended without calling '+(curApi.Terminate?'Terminate':'LMSFinish'),'w');
+  var v=$('#apiv').value==='auto'?pkg.version:$('#apiv').value;
+  document.body.classList.add('launched');cur=item;if(!data[item.id])data[item.id]=initData(item,v);
+  var d=data[item.id];if(d['cmi.suspend_data'])d[v==='1.2'?'cmi.core.entry':'cmi.entry']='resume';
+  if(item.rtype==='asset')note(item.title+' is an asset, not a SCO; expect no API calls','w');
+  delete window.API;delete window.API_1484_11;curApi=mkApi(v,item);
+  if(v==='1.2')window.API=curApi;else window.API_1484_11=curApi;
+  note('Launching “'+item.title+'” ('+item.path+') with '+(v==='1.2'?'window.API':'window.API_1484_11')+(item.params?' — parameters “'+item.params+'” not applied':''));
+  $('#cur').textContent=item.title;drawTree();drawCmi();
+  var fk=find(item.path);if(!fk){note('Cannot launch: '+item.path+' not found in zip','e');return}
+  if(!mapReady)mapReady=ensureMap();await mapReady;
+  var r=await build(fk,true),fr=$('#frame');
+  if(/^blob:/.test(r)){fr.removeAttribute('srcdoc');fr.src=r}else{fr.removeAttribute('src');fr.srcdoc=r}
+}
+
+/* ---------- demo package ---------- */
+async function demo(){
+  var z=new JSZip();
+  var sco=function(t){return '<!DOCTYPE html><html><head><title>'+t+'</title><link rel="stylesheet" href="s.css"></head><body><h2>'+t+'</h2><p id="o">Looking for API…</p><button onclick="go(0)">Initialize</button> <button onclick="go(1)">Set score 85 + completed</button> <button onclick="go(2)">Suspend data</button> <button onclick="go(3)">Finish</button><script>function f(){var w=window;for(var i=0;i<10;i++){if(w.API)return w.API;if(w.API_1484_11)return w.API_1484_11;if(w===w.parent)break;w=w.parent}}var a=f(),v=a&&a.Initialize,x=function(n){return a[v?n:"LMS"+n]},o=document.getElementById("o");o.textContent=a?"API found ("+(v?"2004":"1.2")+")":"No API found";function go(k){if(!a)return;if(k==0)x("Initialize")("");if(k==1){if(v){x("SetValue")("cmi.score.raw","85");x("SetValue")("cmi.completion_status","completed");x("SetValue")("cmi.success_status","passed")}else{x("SetValue")("cmi.core.score.raw","85");x("SetValue")("cmi.core.lesson_status","passed")}x("Commit")("")}if(k==2)x("SetValue")("cmi.suspend_data","page=3");if(k==3)x(v?"Terminate":"Finish")("")}<\/script></body></html>'};
+  z.file('imsmanifest.xml','<?xml version="1.0"?><manifest identifier="demo" version="1.0" xmlns="http://www.imsproject.org/xsd/imscp_rootv1p1p2" xmlns:adlcp="http://www.adlnet.org/xsd/adlcp_rootv1p2"><metadata><schema>ADL SCORM</schema><schemaversion>1.2</schemaversion></metadata><organizations default="o1"><organization identifier="o1"><title>Demo course (SCORM 1.2)</title><item identifier="i1" identifierref="r1"><title>Lesson 1</title></item><item identifier="i2" identifierref="r2"><title>Lesson 2</title></item></organization></organizations><resources><resource identifier="r1" type="webcontent" adlcp:scormtype="sco" href="l1/index.html"><file href="l1/index.html"/></resource><resource identifier="r2" type="webcontent" adlcp:scormtype="sco" href="l2/index.html"><file href="l2/index.html"/></resource></resources></manifest>');
+  z.file('l1/index.html',sco('Lesson 1'));z.file('l1/s.css','body{font-family:sans-serif;padding:20px;background:#fff;color:#111}button{margin:4px 0}');
+  z.file('l2/index.html',sco('Lesson 2'));z.file('l2/s.css','body{font-family:sans-serif;padding:20px;background:#fff;color:#111}button{margin:4px 0}');
+  loadZip(await z.generateAsync({type:'arraybuffer'}),'demo-scorm12.zip');
+}
+
+/* ---------- wiring ---------- */
+var dz=$('#drop'),fi=$('#file');
+dz.onclick=function(){fi.click()};fi.onchange=function(){if(fi.files[0])fi.files[0].arrayBuffer().then(function(b){loadZip(b,fi.files[0].name)})};
+dz.ondragover=function(e){e.preventDefault();dz.classList.add('on')};dz.ondragleave=function(){dz.classList.remove('on')};
+dz.ondrop=function(e){e.preventDefault();dz.classList.remove('on');var f=e.dataTransfer.files[0];if(f)f.arrayBuffer().then(function(b){loadZip(b,f.name)})};
+$('#demo').onclick=demo;$('#prev').onclick=function(){step(-1)};$('#next').onclick=function(){step(1)};
+$('#reload').onclick=function(){if(cur)launch(cur)};$('#errs').onchange=drawLog;
+$('#clr').onclick=function(){logs=[];drawLog()};
+$('#cpy').onclick=function(){var t=logs.map(function(l){return l.t+' '+l.m}).join('\n');try{navigator.clipboard.writeText(t).then(function(){note('Log copied')},function(){note('Copy blocked by browser','w')})}catch(e){note('Copy blocked by browser','w')}};
+$('#rst').onclick=function(){data={};logs=[];drawLog();drawCmi();note('Learner data reset');if(cur)launch(cur)};
+$('#apiv').onchange=function(){data={};if(cur)launch(cur)};
+document.querySelectorAll('.tabs button').forEach(function(b){b.onclick=function(){document.querySelectorAll('.tabs button').forEach(function(x){x.classList.toggle('on',x===b)});['log','cmi','set'].forEach(function(t){$('#t-'+t).classList.toggle('hide',t!==b.dataset.t)})}});
+/* layout controls */
+document.body.classList.add('no-right');if(innerWidth<900)document.body.classList.add('no-left');
+$('#open').onclick=function(){fi.click()};
+$('#tgL').onclick=function(){document.body.classList.toggle('no-left')};
+$('#tgR').onclick=function(){document.body.classList.toggle('no-right')};
+var sb=$('#stagebox');
+function setFs(on){sb.classList.toggle('fs',on);$('#exitfs').classList.toggle('hide',!on)}
+$('#fs').onclick=function(){var fb=function(){setFs(true)};try{var p=sb.requestFullscreen&&sb.requestFullscreen();if(p&&p.catch)p.catch(fb);else if(!p)fb()}catch(e){fb()}};
+document.addEventListener('fullscreenchange',function(){if(!document.fullscreenElement)setFs(false)});
+$('#exitfs').onclick=function(){if(document.fullscreenElement)document.exitFullscreen();setFs(false)};
+document.addEventListener('keydown',function(e){if(e.key==='Escape')setFs(false)});
+function syncBtns(){$('#tgL').classList.toggle('on',!document.body.classList.contains('no-left'));$('#tgR').classList.toggle('on',!document.body.classList.contains('no-right'))}
+new MutationObserver(syncBtns).observe(document.body,{attributes:true,attributeFilter:['class']});syncBtns();
+drawLog();drawCmi();
+</script></body></html>
